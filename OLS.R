@@ -25,8 +25,6 @@ stargazer(model1, se = se_model1, type="text")
 #nox = beta one
 #constant = beta zero
 
-se_model1[0]
-
 
 #the number in parenthesis they are the standard error.
 
@@ -56,7 +54,16 @@ stargazer(model1, model2, se = c(se_model1, se_model2), type="text")
 model1 <- lm(formula = price ~ rooms, data = HPRICE2)
 # HOMOSKEDASTIC ERRORS
 se_ho_model1 = list(summary(model1)$coefficients[,2])
+
 # HETEROSKEDASTIC ERRORS
 se_he_model1 <- starprep(model1, stat = c("std.error"), se_type = "HC1", alpha = 0.05)
+
 #TABLE OF RESULTS
 stargazer(model1, model1, se = c(se_ho_model1, se_he_model1), type="text")  
+
+
+# Using the HC2
+model2 <- lm_robust(formula = price ~ rooms, data = HPRICE2)
+summary(model2)
+
+
