@@ -8,9 +8,9 @@ library(estimatr)
 library(dplyr)
 library(tidyr)
 
-set.seed(7307)
+set.seed(666)
 
-bigN=20000
+bigN = 20000
 
 W <- runif(bigN,0,5)
 X=as.integer(W+1)
@@ -51,7 +51,8 @@ print(ATE)
 
 # ASSIGN A TREATMENT IGNORABLE CONDITIONAL ON X
 v <- rnorm(bigN, 0, 2)
-D <- as.numeric((-2*X1+ -1*X2 + 0.5*X3 + 1*X4 + 2*X5 + v)>0)
+D <- as.numeric((-2*X1+ -1*X2 + 0.5*X3 + 1*X4 + 2*X5 + v) > 0)
+
 mean(D)
 
 
@@ -68,7 +69,7 @@ sumtable(TIA_DATA, vars=c('Y0','Y1', 'X'), group='D', group.test=TRUE)
 
 
 # SIMPLE OLS ESTIMATOR BIASED  FOR ATE
-ols <- lm(formula = Y ~ D, data=TIA_DATA)
+ols <- lm(formula = Y ~ D, data = TIA_DATA) #Bias estimate remoted treatment
 se_models = starprep(ols, stat = c("std.error"), se_type = "HC2", alpha = 0.05)
 stargazer(ols, se = se_models, type="text")
 
@@ -76,6 +77,8 @@ stargazer(ols, se = se_models, type="text")
 
 # Approach 1 with reshaping data ###########
 #MANIPULATE DATA
+
+# Create a table that gets the numbers in a nice table at the end.
 
 TIA_table <- TIA_DATA %>%
   mutate(Y = ifelse(D==1, Y1,Y0))%>% #Create observed Y variable
@@ -93,9 +96,23 @@ TIA_table <- TIA_DATA %>%
 
 stargazer(TIA_table, type= "text", summary = FALSE, digits = 2)
 
+
+# INTERPRETATION: 
+# X =
+# n_obs_0 =
+# n_obs_1 =
+# Y_mean_0 = 
+# Y_mean_1
+# Y_diff = The difference of Y when X = 1
+# w_ATE = weight . similated the data with the 20%
+# w_ATT = percent of weight the treatment group. ex. 0.06 is 6 %
+
+# the average of ATE = 1.486, means
+
 #MULTIVARIATE MATCHING ESTIMATES OF ATE AND ATT
 ATE=sum((TIA_table$w_ATE)*(TIA_table$Y_diff))
 ATE
+
 ATT=sum((TIA_table$w_ATT)*(TIA_table$Y_diff))
 ATT
 
@@ -125,6 +142,7 @@ TIA_table2
 #MULTIVARIATE MATCHING ESTIMATES OF ATE AND ATT
 ATE=unique(TIA_table2$ATE)
 ATE
+
 ATT=unique(TIA_table2$ATT)
 ATT
 
@@ -132,6 +150,10 @@ ATT
 reg_ate <- lm(formula = Y ~ D + X2 + X3 + X4 + X5, data=TIA_DATA)
 se_models = starprep(reg_ate, stat = c("std.error"), se_type = "HC2", alpha = 0.05)
 stargazer(reg_ate, se = se_models, type="text")
+
+
+# INTERPRETATION THE 1.493 EXPAIN THE ATT / ATE.
+# THE X2, X3, X4, ARE THE GAMMAS
 
 
 
