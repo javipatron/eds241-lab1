@@ -38,8 +38,6 @@ mean(e0)
 e1 <- e[,c(2)]  
 mean(e1)
 
-
-
 # GENERATE POTENTIAL OUTCOMES
 Y0 <- MU0 + e0
 mean(Y0)
