@@ -7,9 +7,6 @@ library(lmtest)
 library(dplyr)
 
 
-# SET WORKING DIRECTORY
-
-
 # IMPORT CSV DATA 
 RPS <- read.csv("RPS_data.csv")
 
@@ -32,11 +29,11 @@ mean(RPS$rps_D)
 mean(NEW_RPS_D)
 
 # DD REGRESSION, Y = Wind+Solar installed capacity (MW), using lm package
-DD_cap1 <- lm(formula = cap_WS_mw ~ rps_D + as.factor(state_name) + as.factor(year), data=RPS)
+DD_cap1 <- lm(formula = cap_WS_mw ~ rps_D + as.factor(state_name) + as.factor(year), data= RPS)
 se_DD_cap1 <- starprep(DD_cap1, stat = c("std.error"), se_type = "HC2", alpha = 0.05) 
 
-DD_cap2 <- lm(formula = cap_WS_mw ~ rps_D + as.factor(state_name) + as.factor(year), data=RPS)
-se_DD_cap2 <- starprep(DD_cap2, stat = c("std.error"), se_type = "CR2", clusters=RPS$state_name, alpha = 0.05) 
+DD_cap2 <- lm(formula = cap_WS_mw ~ rps_D + as.factor(state_name) + as.factor(year), data= RPS)
+se_DD_cap2 <- starprep(DD_cap2, stat = c("std.error"), se_type = "CR2", clusters= RPS$state_name, alpha = 0.05) 
 
 se_models <- list(se_DD_cap1[[1]], se_DD_cap2[[1]])
 stargazer(DD_cap1, DD_cap2, se = se_models, keep=c("rps_D"), type="text")
@@ -45,6 +42,9 @@ stargazer(DD_cap1, DD_cap2, se = se_models, keep=c("rps_D"), type="text")
 # DD REGRESSION, Y = Wind+Solar installed capacity (MW), using plm package
 DD_cap3 <- plm(cap_WS_mw ~ rps_D, 
                index = c("state_name", "year"), model = "within", effect = "twoways", data = RPS)
+
+
+# design to do two way fixed ways. By default thi will give you cluster rubbust
 
 # Calculate standard errors (note slightly different procedure with plm package)
 se_DD_cap3 <- coeftest(DD_cap3, vcov = vcovHC(DD_cap3, type = "HC2"))[, "Std. Error"]
